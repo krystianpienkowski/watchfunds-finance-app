@@ -41,10 +41,13 @@ const AddMoney = ({ isOpen, setIsOpen, id, refetch }) => {
   return (
     <Dialog open={isOpen} onClose={closeModal} className="relative z-10">
       <div className="fixed inset-0 bg-black bg-opacity-25" />
-      
+
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl">
-          <DialogTitle as="h3" className="text-lg font-medium leading-6 text-gray-900 mb-4 ">
+          <DialogTitle
+            as="h3"
+            className="text-lg font-medium leading-6 text-gray-900 mb-4 "
+          >
             Dodaj środki
           </DialogTitle>
 
@@ -65,7 +68,9 @@ const AddMoney = ({ isOpen, setIsOpen, id, refetch }) => {
                 className="w-full p-2 border border-gray-300 rounded bg-white text-gray-700 outline-none focus:ring-1 ring-blue-500"
               />
               {errors.amount && (
-                <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.amount.message}
+                </p>
               )}
             </div>
 

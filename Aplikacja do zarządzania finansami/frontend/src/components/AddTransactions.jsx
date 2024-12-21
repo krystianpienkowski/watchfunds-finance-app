@@ -1,7 +1,6 @@
 import { DialogPanel, DialogTitle, Dialog } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { MdOutlineWarning } from "react-icons/md";
 import { toast } from "sonner";
 import { formatCurrency } from "../libs";
 import useStore from "../store";
@@ -22,11 +21,16 @@ const AddTransaction = ({ isOpen, setIsOpen, refetch }) => {
   const [accountData, setAccountData] = useState([]);
   const [accountInfo, setAccountInfo] = useState({});
   const [selectedAccount, setSelectedAccount] = useState("");
+  const [transactionType, setTransactionType] = useState("");
 
   const submitHandler = async (data) => {
     try {
       setLoading(true);
-      const newData = { ...data, source: accountInfo.account_name };
+      const newData = {
+        ...data,
+        source: accountInfo.account_name,
+        type: transactionType,
+      };
 
       const { data: res } = await api.post(
         `/transakcje/dodaj-transakcje/${accountInfo.id}`,
@@ -90,7 +94,7 @@ const AddTransaction = ({ isOpen, setIsOpen, refetch }) => {
 
           <form onSubmit={handleSubmit(submitHandler)} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Wybierz konto
               </label>
 
@@ -122,57 +126,73 @@ const AddTransaction = ({ isOpen, setIsOpen, refetch }) => {
               </select>
             </div>
 
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Opis
-                </label>
-                <input
-                  name="description"
-                  placeholder="Zakupy spożywcze"
-                  {...register("description", {
-                    required: "Napisz opis",
-                  })}
-                  className="w-full p-2 border border-gray-300 rounded bg-white text-gray-700 outline-none focus:ring-1 ring-blue-500"
-                />
-                {errors.description && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.description.message}
-                  </p>
-                )}
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Typ transakcji
+              </label>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Kwota
-                </label>
-                <input
-                  type="number"
-                  name="amount"
-                  placeholder="13.50"
-                  step="0.01"
-                  {...register("amount", {
-                    required: "Wpisz kwotę",
-                  })}
-                  className="w-full p-2 border border-gray-300 rounded bg-white text-gray-700 outline-none focus:ring-1 ring-blue-500"
-                />
-                {errors.amount && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.amount.message}
-                  </p>
-                )}
-              </div>
+              <select
+                onChange={(e) => setTransactionType(e.target.value)}
+                value={transactionType}
+                className="w-full p-2 border border-gray-300 rounded bg-white text-gray-700 outline-none focus:ring-1 ring-blue-500"
+              >
+                <option disabled value="">
+                  Wybierz typ transakcji
+                </option>
+                <option value="income">Przychód</option>
+                <option value="expense">Wydatek</option>
+              </select>
+            </div>
 
-              <div className="w-full mt-6">
-                <button
-                  disabled={loading}
-                  type="submit"
-                  className="w-full p-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-                >
-                  {`Potwierdź`}
-                </button>
-              </div>
-            </>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Opis
+              </label>
+              <input
+                name="description"
+                placeholder="Zakupy spożywcze / Wypłata"
+                {...register("description", {
+                  required: "Napisz opis",
+                })}
+                className="w-full p-2 border border-gray-300 rounded bg-white text-gray-700 outline-none focus:ring-1 ring-blue-500"
+              />
+              {errors.description && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.description.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Kwota
+              </label>
+              <input
+                type="number"
+                name="amount"
+                placeholder="13.50"
+                step="0.01"
+                {...register("amount", {
+                  required: "Wpisz kwotę",
+                })}
+                className="w-full p-2 border border-gray-300 rounded bg-white text-gray-700 outline-none focus:ring-1 ring-blue-500"
+              />
+              {errors.amount && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.amount.message}
+                </p>
+              )}
+            </div>
+
+            <div className="w-full mt-6">
+              <button
+                disabled={loading}
+                type="submit"
+                className="w-full p-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+              >
+                {`Potwierdź`}
+              </button>
+            </div>
           </form>
         </DialogPanel>
       </div>

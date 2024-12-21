@@ -4,22 +4,19 @@ import api from "../libs/apiCalls";
 import { toast } from "sonner";
 import Title from "../components/title";
 import { exportToExcel } from "react-json-to-excel";
-import { MdAdd } from "react-icons/md";
-import { CiExport } from "react-icons/ci";
+import { PiListPlusFill } from "react-icons/pi";
+import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
 import DateRange from "../components/dateRange";
 import { IoSearchOutline } from "react-icons/io5";
-import { IoCheckmarkDoneCircle } from "react-icons/io5";
-import { RiProgress5Line } from "react-icons/ri";
-import { TiWarning } from "react-icons/ti";
 import { formatCurrency } from "../libs";
 import AddTransaction from "../components/AddTransactions";
+import AmountRange from "../components/amountRange";
+
 
 const Transakcje = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isOpenView, setIsOpenView] = useState(false);
-  const [selected, setSelected] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
 
@@ -27,28 +24,16 @@ const Transakcje = () => {
   const startDate = searchParams.get("df") || "";
   const endDate = searchParams.get("dt") || "";
 
-  const handleViewTransaction = (el) => {
-    setSelected(el);
-    setIsOpenView(true);
-  };
-
   const fetchTransactions = async () => {
     try {
-      // Sprawdzenie, czy endDate jest poprawną datą
       let endDateObj = new Date(endDate);
 
       if (isNaN(endDateObj.getTime())) {
-        // Ustawienie domyślnej daty, jeśli endDate jest nieprawidłowy
         endDateObj = new Date();
       }
 
-      // Dodanie jednego dnia do endDate
-      endDateObj.setDate(endDateObj.getDate() + 1);
-
-      // Konwersja do formatu 'YYYY-MM-DD'
       const adjustedEndDate = endDateObj.toISOString().split("T")[0];
 
-      // Budowanie URL z poprawioną datą
       const URL = `/transakcje?df=${startDate}&dt=${adjustedEndDate}&s=${search}`;
       const { data: res } = await api.get(URL);
 
@@ -84,6 +69,13 @@ const Transakcje = () => {
     fetchTransactions();
   }, [startDate, endDate]);
 
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center w-full mt-10">
+        Ładowanie
+      </div>
+    );
+
   return (
     <>
       <div className="w-full py-4">
@@ -91,26 +83,26 @@ const Transakcje = () => {
           <Title text="Transakcje" />
 
           <div className="flex flex-col md:flex-row md:items-center gap-2">
-            <DateRange />
+            <DateRange className="text-xs py-1 px-2" />
 
             <form
               onSubmit={(e) => handleSearch(e)}
               className="w-full md:w-auto mr-6"
             >
-              <div className="flex items-center gap-2 border border-gray-300 rounded-md px-2 py-1">
-                <IoSearchOutline className="text-lg text-gray-600" />
+              <div className="flex items-center gap-1 border border-gray-300 rounded-md px-1 py-1">
+                <IoSearchOutline className="text-sm text-gray-600" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   type="text"
                   placeholder="Szukaj"
-                  className="w-full outline-none bg-transparent text-sm text-gray-700 placeholder:text-gray-500"
+                  className="w-16 outline-none bg-transparent text-xs text-gray-700 placeholder:text-gray-500"
                 />
                 <button
                   type="submit"
-                  className="text-white bg-gray-400 hover:bg-gray-700 px-2 py-1 rounded-md flex items-center justify-center"
+                  className="text-white bg-niebieski hover:bg-blue-900 px-1 py-1 rounded-md flex items-center justify-center"
                 >
-                  <IoSearchOutline className="text-lg" />
+                  <IoSearchOutline className="text-sm" />
                 </button>
               </div>
             </form>
@@ -119,19 +111,19 @@ const Transakcje = () => {
         <div className="flex gap-2 justify-end">
           <button
             onClick={() => setIsOpen(true)}
-            className="py-1 px-2 rounded text-white bg-niebieski flex items-center justify-center gap-1 text-sm "
+            className="py-1 px-2 rounded text-white bg-niebieski flex items-center justify-center gap-1 text-sm hover:bg-blue-900"
           >
-            <MdAdd size={18} />
-            <span>Nowa</span>
+            <PiListPlusFill  size={18} />
+            <span>Transakcja</span>
           </button>
 
           <button
             onClick={() =>
               exportToExcel(data, `Transakcje od ${startDate} do ${endDate}`)
             }
-            className="py-1 px-2 rounded text-white bg-niebieski flex items-center justify-center gap-1 text-sm ml-1 mr-6"
+            className="py-1 px-2 rounded text-white bg-niebieski flex items-center justify-center gap-2 text-sm ml-1 mr-6 hover:bg-blue-900"
           >
-            Eksportuj <CiExport size={20} />
+            Eksportuj <PiMicrosoftExcelLogoFill   size={20} />
           </button>
         </div>
         <div className="overflow-x-auto mt-5 mx-10">

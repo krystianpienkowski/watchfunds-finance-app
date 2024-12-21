@@ -34,7 +34,7 @@ const SettingForm = () => {
         const newUser = { ...res.user, token: user.token };
         localStorage.setItem("user", JSON.stringify(newUser));
         setCredentials(newUser);
-
+        window.location.reload();
         toast.success(res?.message || "Dane zostały zaktualizowane pomyślnie");
       }
     } catch (error) {
