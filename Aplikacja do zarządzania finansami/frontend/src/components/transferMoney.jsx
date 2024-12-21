@@ -15,14 +15,24 @@ const TransferMoney = ({ isOpen, setIsOpen, fromAccountId, refetch }) => {
   } = useForm();
   const [loading, setLoading] = useState(false);
   const [accounts, setAccounts] = useState([]);
+  const [selectedAccount, setSelectedAccount] = useState("");
+  const [accountBalance, setAccountBalance] = useState(null);
+  
 
-  // Pobieranie listy kont dostępnych dla użytkownika
+  const getAccountBalance = (accountId) => {
+    const account = accounts.find((acc) => acc.id === accountId);
+    setAccountBalance(account ? account.account_balance : null);
+  };
+  
+
+
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
         const { data: res } = await api.get("/konta");
-        // Filtrujemy, aby nie zawierać konta źródłowego
-        const filteredAccounts = res?.data.filter((account) => account.id !== fromAccountId);
+        const filteredAccounts = res?.data.filter(
+          (account) => account.id !== fromAccountId
+        );
         setAccounts(filteredAccounts);
       } catch (error) {
         console.error("Error fetching accounts:", error);
@@ -45,7 +55,10 @@ const TransferMoney = ({ isOpen, setIsOpen, fromAccountId, refetch }) => {
         amount: data.amount,
       };
 
-      const { data: res } = await api.put(`/transakcje/transfer-srodkow`, payload);
+      const { data: res } = await api.put(
+        `/transakcje/transfer-srodkow`,
+        payload
+      );
 
       if (res?.status === "success") {
         toast.success(res?.message);
@@ -69,38 +82,55 @@ const TransferMoney = ({ isOpen, setIsOpen, fromAccountId, refetch }) => {
   return (
     <Dialog open={isOpen} onClose={closeModal} className="relative z-10">
       <div className="fixed inset-0 bg-black bg-opacity-25" />
-      
+
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl">
-          <DialogTitle as="h3" className="text-lg font-medium leading-6 text-gray-900 mb-4">
+          <DialogTitle
+            as="h3"
+            className="text-lg font-medium leading-6 text-gray-900 mb-4"
+          >
             Przelej środki
           </DialogTitle>
 
           <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
-            {/* Pasek wyboru konta docelowego */}
             <div>
-              <label className="block text-sm font-medium text-gray-500">Konto docelowe</label>
+              <label className="block text-sm font-medium text-gray-500">
+                Konto docelowe
+              </label>
+
               <select
                 {...register("to_account", {
                   required: "Wybór konta docelowego jest wymagany",
                 })}
+                onChange={(e) => {
+                  setSelectedAccount(e.target.value); // Zaktualizuj wybrane konto
+                  getAccountBalance(e.target.value); // Pobierz balans konta
+                }}
+                value={selectedAccount} // Przypisz wartość z kontrolowanego stanu
                 className="w-full p-2 border border-gray-300 rounded bg-white text-gray-700 outline-none focus:ring-1 ring-blue-500"
               >
+                <option disabled value="">
+                  Wybierz konto
+                </option>
                 {accounts.map((account) => (
                   <option key={account.id} value={account.id}>
                     {account.account_name} - {formatCurrency(account.account_balance)}
                   </option>
                 ))}
               </select>
+
+
               {errors.to_account && (
-                <p className="text-red-500 text-sm mt-1">{errors.to_account.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.to_account.message}
+                </p>
               )}
             </div>
 
-
-            {/* Pole dodawania kwoty */}
             <div>
-              <label className="block text-sm font-medium text-gray-500">Kwota</label>
+              <label className="block text-sm font-medium text-gray-500">
+                Kwota
+              </label>
               <input
                 type="number"
                 placeholder="np. 200"
@@ -114,11 +144,12 @@ const TransferMoney = ({ isOpen, setIsOpen, fromAccountId, refetch }) => {
                 className="w-full p-2 border border-gray-300 rounded bg-white text-gray-700 outline-none focus:ring-1 ring-blue-500"
               />
               {errors.amount && (
-                <p className="text-red-500 text-sm mt-1">{errors.amount.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.amount.message}
+                </p>
               )}
             </div>
 
-            {/* Przycisk Przelej Środki */}
             <div className="w-full mt-8">
               <button
                 type="submit"

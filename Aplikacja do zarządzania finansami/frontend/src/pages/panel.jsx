@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import Navbar from '../components/navbar'
-import Stats from '../components/stats'
-import api from '../libs/apiCalls';
-import { toast } from 'sonner';
-import Chart from '../components/chart';
-
-import { BiLoader } from 'react-icons/bi';
+import React, { useEffect, useState } from "react";
+import Stats from "../components/stats";
+import api from "../libs/apiCalls";
+import { toast } from "sonner";
+import Chart from "../components/chart";
 
 const Panel = () => {
-
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchDashboardStats = async () => {
     const URL = `/transakcje/panel`;
     try {
-      const {data} = await api.get(URL);
+      const { data } = await api.get(URL);
       setData(data);
     } catch (error) {
       console.error(error);
@@ -36,9 +32,9 @@ const Panel = () => {
   }, []);
 
   if (isLoading)
-    return(
-      <div className='flex items-center justify-center w-full mt-10'>
-        <BiLoader className="text-2xl text-white animate-spin" />
+    return (
+      <div className="flex items-center justify-center w-full mt-10">
+        Ładowanie
       </div>
     );
 
@@ -46,18 +42,16 @@ const Panel = () => {
     <div>
       <div>
         <Stats
-          dt = {{
+          dt={{
             balance: data?.availableBalance,
             income: data?.totalIncome,
-            expense: data?.totalExpense
+            expense: data?.totalExpense,
           }}
         />
         <Chart chartData={data?.chartData} />
-
       </div>
-      
     </div>
-  )
-}
+  );
+};
 
-export default Panel
+export default Panel;

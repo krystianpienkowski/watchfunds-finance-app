@@ -95,7 +95,8 @@ return (
             <label className="block text-sm font-medium text-gray-500">Wprowadź saldo początkowe</label>
             <input
               type="number"
-              placeholder="np. 500"
+              placeholder="500"
+              step="0.01"
               {...register("amount", {
                 required: "Saldo jest wymagane",
               })}

@@ -1,11 +1,226 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import api from "../libs/apiCalls";
+import { toast } from "sonner";
+import Title from "../components/title";
+import { exportToExcel } from "react-json-to-excel";
+import { MdAdd } from "react-icons/md";
+import { CiExport } from "react-icons/ci";
+import DateRange from "../components/dateRange";
+import { IoSearchOutline } from "react-icons/io5";
+import { IoCheckmarkDoneCircle } from "react-icons/io5";
+import { RiProgress5Line } from "react-icons/ri";
+import { TiWarning } from "react-icons/ti";
+import { formatCurrency } from "../libs";
+import AddTransaction from "../components/AddTransactions";
 
-const transakcje = () => {
+const Transakcje = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenView, setIsOpenView] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState([]);
+
+  const [search, setSearch] = useState("");
+  const startDate = searchParams.get("df") || "";
+  const endDate = searchParams.get("dt") || "";
+
+  const handleViewTransaction = (el) => {
+    setSelected(el);
+    setIsOpenView(true);
+  };
+
+  const fetchTransactions = async () => {
+    try {
+      // Sprawdzenie, czy endDate jest poprawną datą
+      let endDateObj = new Date(endDate);
+
+      if (isNaN(endDateObj.getTime())) {
+        // Ustawienie domyślnej daty, jeśli endDate jest nieprawidłowy
+        endDateObj = new Date();
+      }
+
+      // Dodanie jednego dnia do endDate
+      endDateObj.setDate(endDateObj.getDate() + 1);
+
+      // Konwersja do formatu 'YYYY-MM-DD'
+      const adjustedEndDate = endDateObj.toISOString().split("T")[0];
+
+      // Budowanie URL z poprawioną datą
+      const URL = `/transakcje?df=${startDate}&dt=${adjustedEndDate}&s=${search}`;
+      const { data: res } = await api.get(URL);
+
+      setData(res?.data);
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error?.response?.data?.message ||
+          "Something unexpected happened. Try again later."
+      );
+      if (error?.response?.data?.status === "auth_failed") {
+        localStorage.removeItem("user");
+        window.location.reload();
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+
+    setSearchParams({
+      df: startDate,
+      dt: endDate,
+    });
+    setIsLoading(true);
+    await fetchTransactions();
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchTransactions();
+  }, [startDate, endDate]);
+
   return (
-    <div>
-      
-    </div>
-  )
-}
+    <>
+      <div className="w-full py-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+          <Title text="Transakcje" />
 
-export default transakcje
+          <div className="flex flex-col md:flex-row md:items-center gap-2">
+            <DateRange />
+
+            <form
+              onSubmit={(e) => handleSearch(e)}
+              className="w-full md:w-auto mr-6"
+            >
+              <div className="flex items-center gap-2 border border-gray-300 rounded-md px-2 py-1">
+                <IoSearchOutline className="text-lg text-gray-600" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  type="text"
+                  placeholder="Szukaj"
+                  className="w-full outline-none bg-transparent text-sm text-gray-700 placeholder:text-gray-500"
+                />
+                <button
+                  type="submit"
+                  className="text-white bg-gray-400 hover:bg-gray-700 px-2 py-1 rounded-md flex items-center justify-center"
+                >
+                  <IoSearchOutline className="text-lg" />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="py-1 px-2 rounded text-white bg-niebieski flex items-center justify-center gap-1 text-sm "
+          >
+            <MdAdd size={18} />
+            <span>Nowa</span>
+          </button>
+
+          <button
+            onClick={() =>
+              exportToExcel(data, `Transakcje od ${startDate} do ${endDate}`)
+            }
+            className="py-1 px-2 rounded text-white bg-niebieski flex items-center justify-center gap-1 text-sm ml-1 mr-6"
+          >
+            Eksportuj <CiExport size={20} />
+          </button>
+        </div>
+        <div className="overflow-x-auto mt-5 mx-10">
+          {data?.length === 0 ? (
+            <div className="w-full flex items-center justify-center py-10 text-gray-600 text-lg">
+              <span>Brak transakcji</span>
+            </div>
+          ) : (
+            <>
+              <table className="w-full">
+                <thead className="w-full border-b border-gray-300">
+                  <tr className="w-full text-black text-left">
+                    <th className="py-2">Data</th>
+                    <th className="py-2 px-2">Opis</th>
+                    <th className="py-2 px-2">Typ</th>
+                    <th className="py-2 px-2">Źródło</th>
+                    <th className="py-2 px-2 ">Kwota</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.map((item, index) => (
+                    <tr
+                      key={index}
+                      className="w-full border-b border-gray-200 text-gray-600 hover:bg-gray-300/10 text-sm md:text-sm"
+                    >
+                      <td className="py-2">
+                        <p className="w-24 md:w-auto">
+                          {new Date(item.createdat).toLocaleDateString(
+                            "pl-PL",
+                            {
+                              weekday: "short",
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            }
+                          )}
+                        </p>
+                      </td>
+                      <td className="py-2 px-2">
+                        <div className="flex flex-col w-56 md:w-auto">
+                          <p className="text-sm text-black line-clamp-2">
+                            {item.description}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="py-2 px-2">
+                        <div className="flex items-center gap-2">
+                          {item.description.startsWith("Transfer") ? (
+                            <span className="text-blue-600 font-semibold">
+                              Transfer
+                            </span>
+                          ) : (
+                            <>
+                              {item.type === "income" && (
+                                <span className="text-emerald-600 font-semibold">
+                                  Przychód
+                                </span>
+                              )}
+                              {item.type === "expense" && (
+                                <span className="text-red-600 font-semibold">
+                                  Wydatek
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-2 px-2">{item?.source}</td>
+                      <td className="py-2 px-2 text-black text-sm font-medium">
+                        <span>{item?.type === "income" ? "+" : "-"}</span>
+                        {formatCurrency(item?.amount)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
+        </div>
+      </div>
+
+      <AddTransaction
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        refetch={fetchTransactions}
+        key={new Date().getTime()}
+      />
+    </>
+  );
+};
+
+export default Transakcje;

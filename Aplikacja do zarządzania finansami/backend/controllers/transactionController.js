@@ -173,7 +173,7 @@ export const transferMoneyToAccount = async(req, res) => {
             values: [userId, description1, "expense", "Completed", amount, fromAccount.account_name]    
         });
 
-        const description2 = `Received (${fromAccount.account_name} - ${toAccount.rows[0].account_name})`;
+        const description2 = `Transfer (${fromAccount.account_name} - ${toAccount.rows[0].account_name})`;
 
         await pool.query({
             text: `INSERT INTO tbltransaction(user_id, description, type, status, amount, source) VALUES($1, $2, $3, $4, $5, $6)`,
@@ -201,11 +201,13 @@ export const getDashboardInformation = async (req, res) => {
       let totalIncome = 0;
       let totalExpense = 0;
   
-      // Pobieranie sum dochodów i wydatków w bieżącym miesiącu
+      // Pobieranie sum dochodów i wydatków w bieżącym miesiącu, wykluczając transfery
       const transactionsResult = await pool.query({
         text: `SELECT type, SUM(amount) AS totalAmount 
                FROM tbltransaction 
-               WHERE user_id = $1 AND createdat >= DATE_TRUNC('month', CURRENT_DATE)
+               WHERE user_id = $1 
+                 AND createdat >= DATE_TRUNC('month', CURRENT_DATE)
+                 AND NOT description LIKE 'Transfer%'
                GROUP BY type`,
         values: [userId],
       });
@@ -230,11 +232,13 @@ export const getDashboardInformation = async (req, res) => {
   
       const availableBalance = parseFloat(balanceResult.rows[0].totalbalance);
   
-      // Pobieranie transakcji z podziałem na dni tygodnia
+      // Pobieranie transakcji z podziałem na dni tygodnia, wykluczając transfery
       const result = await pool.query({
         text: `SELECT EXTRACT(DOW FROM createdat) AS day, type, SUM(amount) AS totalAmount
                FROM tbltransaction 
-               WHERE user_id = $1 AND createdat >= DATE_TRUNC('month', CURRENT_DATE)
+               WHERE user_id = $1 
+                 AND createdat >= DATE_TRUNC('month', CURRENT_DATE)
+                 AND NOT description LIKE 'Transfer%'
                GROUP BY EXTRACT(DOW FROM createdat), type`,
         values: [userId],
       });
@@ -275,5 +279,6 @@ export const getDashboardInformation = async (req, res) => {
       res.status(500).json({ status: "failed", message: error.message });
     }
   };
+  
   
   

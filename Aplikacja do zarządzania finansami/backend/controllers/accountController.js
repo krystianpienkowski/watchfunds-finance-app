@@ -55,7 +55,7 @@ export const createAccount = async(req, res) => {
         };
         await pool.query(updateUserAccountQuery);
 
-        const description = account.account_name + " (Initial Deposit)";
+        const description = account.account_name + " (Wpłata początkowa)";
 
 
         const initialDepositQuery = {

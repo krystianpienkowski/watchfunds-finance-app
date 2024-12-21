@@ -3,8 +3,11 @@ import { IoWallet } from "react-icons/io5";
 import { FaPiggyBank } from "react-icons/fa6";
 import { PiHandCoinsBold } from "react-icons/pi";
 import { formatCurrency } from "../libs";
+import Title from "./title";
+
 
 const Stats = ({ dt }) => {
+    
     const data = [
         {
             label: "Twoje saldo",
@@ -12,12 +15,12 @@ const Stats = ({ dt }) => {
             icon: <FaPiggyBank size={25} />
         },
         {
-            label: "Twoje przychody",
+            label: "Miesięczne przychody",
             amount: formatCurrency(dt?.income),
             icon: <IoWallet size={25} />
         },
         {
-            label: "Twoje wydatki",
+            label: "Miesięczne wydatki",
             amount: formatCurrency(dt?.expense),
             icon: <PiHandCoinsBold size={25} />
         }
