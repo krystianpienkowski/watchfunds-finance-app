@@ -43,7 +43,10 @@ const SettingForm = () => {
       if (error?.response?.status === 409) {
         toast.error("Podany email już istnieje w innym koncie");
       } else {
-        toast.error(error?.response?.data?.message || "Wystąpił błąd podczas aktualizacji danych");
+        toast.error(
+          error?.response?.data?.message ||
+            "Wystąpił błąd podczas aktualizacji danych"
+        );
       }
     } finally {
       setLoading(false);
@@ -56,39 +59,48 @@ const SettingForm = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Pole Imię */}
           <div>
-            <label className="block text-sm font-medium text-gray-500">Imię</label>
+            <label className="block text-sm font-medium text-gray-500">
+              Imię
+            </label>
             <input
               disabled={loading}
               type="text"
               placeholder="Imię"
-              {...register("firstname",)}
+              {...register("firstname")}
               className="w-full p-2 border border-gray-300 rounded bg-white"
             />
-            {errors.firstname && <p className="text-red-500">{errors.firstname.message}</p>}
+            {errors.firstname && (
+              <p className="text-red-500">{errors.firstname.message}</p>
+            )}
           </div>
 
           {/* Pole Nazwisko */}
           <div>
-            <label className="block text-sm font-medium text-gray-500">Nazwisko</label>
+            <label className="block text-sm font-medium text-gray-500">
+              Nazwisko
+            </label>
             <input
               disabled={loading}
               type="text"
               placeholder="Nazwisko"
-              {...register("lastname", )}
+              {...register("lastname")}
               className="w-full p-2 border border-gray-300 rounded bg-white"
             />
-            {errors.lastname && <p className="text-red-500">{errors.lastname.message}</p>}
+            {errors.lastname && (
+              <p className="text-red-500">{errors.lastname.message}</p>
+            )}
           </div>
 
           {/* Pole Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-500">Email</label>
+            <label className="block text-sm font-medium text-gray-500">
+              Email
+            </label>
             <input
               disabled={loading}
               type="email"
               placeholder="Email"
               {...register("email", {
-                
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                   message: "Podaj poprawny adres email",
@@ -96,12 +108,16 @@ const SettingForm = () => {
               })}
               className="w-full p-2 border border-gray-300 rounded bg-white"
             />
-            {errors.email && <p className="text-red-500">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-red-500">{errors.email.message}</p>
+            )}
           </div>
 
           {/* Pole Waluta */}
           <div>
-            <label className="block text-sm font-medium text-gray-500">Waluta</label>
+            <label className="block text-sm font-medium text-gray-500">
+              Waluta
+            </label>
             <select
               disabled={loading}
               {...register("currency", { required: "Waluta jest wymagana" })}
@@ -112,7 +128,9 @@ const SettingForm = () => {
               <option value="GBP">GBP</option>
               <option value="EUR">EUR</option>
             </select>
-            {errors.currency && <p className="text-red-500">{errors.currency.message}</p>}
+            {errors.currency && (
+              <p className="text-red-500">{errors.currency.message}</p>
+            )}
           </div>
 
           {/* Przycisk Zaktualizuj */}
@@ -121,7 +139,11 @@ const SettingForm = () => {
             disabled={loading}
             className="w-full p-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
           >
-            {loading ? <BiLoader className="text-2xl text-white animate-spin" /> : "Zaktualizuj"}
+            {loading ? (
+              <BiLoader className="text-2xl text-white animate-spin" />
+            ) : (
+              "Zaktualizuj"
+            )}
           </button>
         </form>
       </div>

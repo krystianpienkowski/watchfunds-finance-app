@@ -1,7 +1,6 @@
 import React from "react";
 import useStore from "../store";
 import Title from "../components/title";
-import { Avatar } from "../assets";
 import SettingForm from "../components/settingForm";
 import ChangePassword from "../components/changePassword";
 

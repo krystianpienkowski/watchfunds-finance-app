@@ -4,14 +4,12 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { BiLoader } from "react-icons/bi";
 import api from "../libs/apiCalls";
-import { formatCurrency } from "../libs";
 
 const AddMoney = ({ isOpen, setIsOpen, id, refetch }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm();
   const [loading, setLoading] = useState(false);
 
@@ -19,10 +17,10 @@ const AddMoney = ({ isOpen, setIsOpen, id, refetch }) => {
     try {
       setLoading(true);
 
-      const { data: res } = await api.put(`/konta/dodaj-srodki/${id}`, data);
+      const response = await api.put(`/konta/dodaj-srodki/${id}`, data);
 
-      if (res?.data) {
-        toast.success(res?.message);
+      if (response?.data) {
+        toast.success(response?.message || "Środki zostały dodane pomyślnie.");
         setIsOpen(false);
         refetch();
       }
@@ -34,19 +32,15 @@ const AddMoney = ({ isOpen, setIsOpen, id, refetch }) => {
     }
   };
 
-  function closeModal() {
-    setIsOpen(false);
-  }
-
   return (
-    <Dialog open={isOpen} onClose={closeModal} className="relative z-10">
+    <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-10">
       <div className="fixed inset-0 bg-black bg-opacity-25" />
 
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl">
           <DialogTitle
             as="h3"
-            className="text-lg font-medium leading-6 text-gray-900 mb-4 "
+            className="text-lg font-medium leading-6 text-gray-900 mb-4"
           >
             Dodaj środki
           </DialogTitle>
@@ -54,10 +48,10 @@ const AddMoney = ({ isOpen, setIsOpen, id, refetch }) => {
           <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
             {/* Sekcja dodawania kwoty */}
             <div>
-              <label className="block text-sm font-medium text-gray-500"></label>
               <input
                 type="number"
                 placeholder="np. 200"
+                step="0.01"
                 {...register("amount", {
                   required: "Kwota jest wymagana",
                   min: {

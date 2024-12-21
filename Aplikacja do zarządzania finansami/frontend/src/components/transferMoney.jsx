@@ -16,24 +16,13 @@ const TransferMoney = ({ isOpen, setIsOpen, fromAccountId, refetch }) => {
   const [loading, setLoading] = useState(false);
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState("");
-  const [accountBalance, setAccountBalance] = useState(null);
-  
-
-  const getAccountBalance = (accountId) => {
-    const account = accounts.find((acc) => acc.id === accountId);
-    setAccountBalance(account ? account.account_balance : null);
-  };
-  
-
+  const [accountBalance, setAccountBalance] = useState(0);
 
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
         const { data: res } = await api.get("/konta");
-        const filteredAccounts = res?.data.filter(
-          (account) => account.id !== fromAccountId
-        );
-        setAccounts(filteredAccounts);
+        setAccounts(res?.data.filter((account) => account.id !== fromAccountId));
       } catch (error) {
         console.error("Error fetching accounts:", error);
         toast.error("Wystąpił błąd podczas pobierania kont.");
@@ -55,10 +44,7 @@ const TransferMoney = ({ isOpen, setIsOpen, fromAccountId, refetch }) => {
         amount: data.amount,
       };
 
-      const { data: res } = await api.put(
-        `/transakcje/transfer-srodkow`,
-        payload
-      );
+      const { data: res } = await api.put(`/transakcje/transfer-srodkow`, payload);
 
       if (res?.status === "success") {
         toast.success(res?.message);
@@ -103,10 +89,12 @@ const TransferMoney = ({ isOpen, setIsOpen, fromAccountId, refetch }) => {
                   required: "Wybór konta docelowego jest wymagany",
                 })}
                 onChange={(e) => {
-                  setSelectedAccount(e.target.value); // Zaktualizuj wybrane konto
-                  getAccountBalance(e.target.value); // Pobierz balans konta
+                  const accountId = e.target.value;
+                  setSelectedAccount(accountId);
+                  const account = accounts.find((acc) => acc.id === accountId);
+                  setAccountBalance(account ? account.account_balance : null);
                 }}
-                value={selectedAccount} // Przypisz wartość z kontrolowanego stanu
+                value={selectedAccount}
                 className="w-full p-2 border border-gray-300 rounded bg-white text-gray-700 outline-none focus:ring-1 ring-blue-500"
               >
                 <option disabled value="">
@@ -114,11 +102,11 @@ const TransferMoney = ({ isOpen, setIsOpen, fromAccountId, refetch }) => {
                 </option>
                 {accounts.map((account) => (
                   <option key={account.id} value={account.id}>
-                    {account.account_name} - {formatCurrency(account.account_balance)}
+                    {account.account_name} -{" "}
+                    {formatCurrency(account.account_balance)}
                   </option>
                 ))}
               </select>
-
 
               {errors.to_account && (
                 <p className="text-red-500 text-sm mt-1">

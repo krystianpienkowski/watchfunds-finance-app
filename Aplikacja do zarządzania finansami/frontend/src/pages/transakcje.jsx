@@ -10,8 +10,6 @@ import DateRange from "../components/dateRange";
 import { IoSearchOutline } from "react-icons/io5";
 import { formatCurrency } from "../libs";
 import AddTransaction from "../components/AddTransactions";
-import AmountRange from "../components/amountRange";
-
 
 const Transakcje = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -40,10 +38,7 @@ const Transakcje = () => {
       setData(res?.data);
     } catch (error) {
       console.error(error);
-      toast.error(
-        error?.response?.data?.message ||
-          "Something unexpected happened. Try again later."
-      );
+      toast.error(error?.response?.data?.message || "Błąd");
       if (error?.response?.data?.status === "auth_failed") {
         localStorage.removeItem("user");
         window.location.reload();
@@ -113,7 +108,7 @@ const Transakcje = () => {
             onClick={() => setIsOpen(true)}
             className="py-1 px-2 rounded text-white bg-niebieski flex items-center justify-center gap-1 text-sm hover:bg-blue-900"
           >
-            <PiListPlusFill  size={18} />
+            <PiListPlusFill size={18} />
             <span>Transakcja</span>
           </button>
 
@@ -123,7 +118,7 @@ const Transakcje = () => {
             }
             className="py-1 px-2 rounded text-white bg-niebieski flex items-center justify-center gap-2 text-sm ml-1 mr-6 hover:bg-blue-900"
           >
-            Eksportuj <PiMicrosoftExcelLogoFill   size={20} />
+            Eksportuj <PiMicrosoftExcelLogoFill size={20} />
           </button>
         </div>
         <div className="overflow-x-auto mt-5 mx-10">
@@ -139,8 +134,8 @@ const Transakcje = () => {
                     <th className="py-2">Data</th>
                     <th className="py-2 px-2">Opis</th>
                     <th className="py-2 px-2">Typ</th>
-                    <th className="py-2 px-2">Źródło</th>
-                    <th className="py-2 px-2 ">Kwota</th>
+                    <th className="py-2 px-2">Konto</th>
+                    <th className="py-2 px-2">Kwota</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -171,7 +166,7 @@ const Transakcje = () => {
                       </td>
                       <td className="py-2 px-2">
                         <div className="flex items-center gap-2">
-                          {item.description.startsWith("Transfer") ? (
+                          {item.description.startsWith("Transfer (") ? (
                             <span className="text-blue-600 font-semibold">
                               Transfer
                             </span>
@@ -192,7 +187,15 @@ const Transakcje = () => {
                         </div>
                       </td>
                       <td className="py-2 px-2">{item?.source}</td>
-                      <td className="py-2 px-2 text-black text-sm font-medium">
+                      <td
+                        className={`py-2 px-2 text-sm font-medium ${
+                          item.description.startsWith("Transfer (")
+                            ? "text-black"
+                            : item.type === "income"
+                            ? "text-emerald-600"
+                            : "text-red-600"
+                        }`}
+                      >
                         <span>{item?.type === "income" ? "+" : "-"}</span>
                         {formatCurrency(item?.amount)}
                       </td>

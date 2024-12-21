@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { Navigate, Outlet, replace, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import Logowanie from './pages/logowanie';
 import Rejestracja from './pages/rejestracja';
 import Panel from './pages/panel';
@@ -14,7 +13,7 @@ import Navbar from './components/navbar';
 const RootLayout = () => {
   const {user} = useStore((state)=>state);
   setAuthToken(user?.token || "");
-  return !user ? ( <Navigate to="logowanie" replace={true}/> ) : ( 
+  return !user ? ( <Navigate to="logowanie" /> ) : ( 
   <>
   <Navbar/> 
     <div className='min-h-[cal(h-screen-100px)]'> 
@@ -25,8 +24,6 @@ const RootLayout = () => {
 };
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <main>
       <div className='w-full min-h-screen bg-white'>
