@@ -122,6 +122,7 @@ const TransferMoney = ({ isOpen, setIsOpen, fromAccountId, refetch }) => {
               <input
                 type="number"
                 placeholder="np. 200"
+                step="0.01"
                 {...register("amount", {
                   required: "Kwota jest wymagana",
                   min: {

@@ -52,20 +52,15 @@ const Chart = ({ chartData }) => {
         <BarChart
           data={chartData}
           margin={{ top: 10, right: 30, left: 20, bottom: 20 }}
-          layout={window.innerWidth < 768 ? "vertical" : "horizontal"} // Responsywna zmiana układu
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
-            type={window.innerWidth < 768 ? "number" : "category"}
-            dataKey={window.innerWidth < 768 ? null : "label"}
+            dataKey="label"
             tick={{ fontSize: 12 }}
-            angle={window.innerWidth < 768 ? 0 : -45}
-            textAnchor={window.innerWidth < 768 ? "middle" : "end"}
+            angle={-45}
+            textAnchor="end"
           />
-          <YAxis
-            type={window.innerWidth < 768 ? "category" : "number"}
-            dataKey={window.innerWidth < 768 ? "label" : null}
-          />
+          <YAxis />
           <Tooltip content={<CustomTooltip />} />
           <Legend align="center" iconType="circle" wrapperStyle={{ bottom: 0 }} />
           <Bar
@@ -73,7 +68,7 @@ const Chart = ({ chartData }) => {
             fill="url(#incomeGradient)"
             name="Przychody"
             radius={[10, 10, 0, 0]}
-            animationDuration={1000} // Animacje
+            animationDuration={1000}
           >
             {chartData.map((entry, index) => (
               <text
@@ -93,7 +88,7 @@ const Chart = ({ chartData }) => {
             fill="url(#expenseGradient)"
             name="Wydatki"
             radius={[10, 10, 0, 0]}
-            animationDuration={1000} // Animacje
+            animationDuration={1000}
           >
             {chartData.map((entry, index) => (
               <text
