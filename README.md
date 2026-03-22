@@ -2,7 +2,12 @@
 
 ## Projekt
 
-**WatchFunds** to aplikacja internetowa do zarządzania finansami osobistymi, umożliwiająca użytkownikom zarządzanie kontami, transakcjami oraz monitorowanie swoich przychodów i wydatków.
+**WatchFunds** to fullstackowa aplikacja do zarządzania finansami osobistymi,
+która pozwala użytkownikom śledzić wydatki, zarządzać wieloma kontami
+oraz analizować swoje finanse za pomocą wykresów i statystyk.
+
+Projekt został zaprojektowany jako skalowalna aplikacja webowa
+z wykorzystaniem architektury REST API.
 
 ---
 
@@ -74,7 +79,6 @@
 │   ├── index.js
 │   ├── transactionRoutes.js
 │   ├── userRoutes.js
-├── .env
 ├── index.js
 ├── package.json
 ├── package-lock.json
